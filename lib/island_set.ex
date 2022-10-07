@@ -1,5 +1,5 @@
 defmodule IslandsEngine.IslandSet do
-  alias IslandsEngine.{Island, IslandSet}
+  alias IslandsEngine.{Island, IslandSet, Coordinate}
 
   defstruct atoll: :none, dot: :none, l_shape: :none, s_shape: :none, square: :none
 
@@ -26,7 +26,15 @@ defmodule IslandsEngine.IslandSet do
 
   defp string_body(island_set) do
     Enum.reduce(keys(), "", fn key, acc ->
-      nil
+      island = Agent.get(island_set, &Map.fetch!(&1, key))
+      acc <> "#{key} => #{Island.to_string(island)}, \n"
     end)
+  end
+
+  def set_island_coordinates(island_set, island_key, new_coordinates) do
+    island = Agent.get(island_set, fn state -> Map.get(state, island_key) end)
+    original_coordinates = Agent.get(island, fn state -> state end)
+    Coordinate.set_all_in_island(original_coordinates, :none)
+    Coordinate.set_all_in_island(new_coordinates, island_key)
   end
 end

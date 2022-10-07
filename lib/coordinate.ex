@@ -37,4 +37,9 @@ defmodule IslandsEngine.Coordinate do
   def to_string(coordinate) do
     "in_island: #{island(coordinate)}, guessed: #{guessed?(coordinate)}"
   end
+
+  def set_all_in_island(coordinates, island_key)
+      when is_atom(island_key) and is_list(coordinates) do
+    Enum.each(coordinates, fn coord -> Coordinate.set_in_island(coord, island_key) end)
+  end
 end
