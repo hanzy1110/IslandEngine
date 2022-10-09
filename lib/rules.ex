@@ -1,6 +1,13 @@
 defmodule IslandsEngine.Rules do
   @behaviour :gen_statem
+
+  defstruct player1: :islands_not_set, player2: :islands_not_set
+
   alias IslandsEngine.Rules
+
+  def start_link do
+    :gen_statem.start_link(__MODULE__, :initialized, [])
+  end
 
   def show_current_state(fsm) do
     :gen_statem.call(fsm, :show_current_state)
@@ -10,12 +17,24 @@ defmodule IslandsEngine.Rules do
     :gen_statem.call(fsm, :add_player)
   end
 
-  def start_link do
-    :gen_statem.start_link(__MODULE__, :initialized, [])
+  def init(_) do
+    {:ok, :initialized, %Rules{}}
   end
 
-  def init(_) do
-    {:ok, :initialized, []}
+  def move_island(fsm, player) when is_atom(player) do
+    :gen_statem.call(fsm, {:move_island, player})
+  end
+
+  def set_islands(fsm, player) when is_atom(player) do
+    :gen_statem.call(fsm, {:set_islands, player})
+  end
+
+  def guess_coordinate(fsm, player) when is_atom(player) do
+    :gen_statem.call(fsm, {:guess_coordinate, player})
+  end
+
+  def win(fsm) do
+    :gen_statem.call(fsm, :win)
   end
 
   def callback_mode, do: :state_functions
@@ -58,7 +77,7 @@ defmodule IslandsEngine.Rules do
   end
 
   def players_set({:call, from}, :show_current_state, _state_data) do
-    {:keep_state_and_data, {:reply, from, :ok}}
+    {:keep_state_and_data, {:reply, from, :players_set}}
   end
 
   def players_set({:call, from}, _, _state_data) do
@@ -82,7 +101,7 @@ defmodule IslandsEngine.Rules do
   end
 
   def player2_turn({:call, from}, {:guess_coordinate, :player2}, state_data) do
-    {:next_state, :player2_turn, state_data, {:reply, from, :ok}}
+    {:next_state, :player1_turn, state_data, {:reply, from, :ok}}
   end
 
   def player2_turn({:call, from}, :win, state_data) do
