@@ -21,6 +21,7 @@ defmodule IslandsEngine.Test do
     IO.puts(Rules.show_current_state(state.fsm))
 
     Game.guess_coordinate(game, :player1, :d1)
+    IO.puts(Rules.show_current_state(state.fsm))
     Game.guess_coordinate(game, :player2, :a1)
 
     IO.puts(Rules.show_current_state(state.fsm))
