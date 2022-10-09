@@ -48,9 +48,11 @@ defmodule IslandsEngine.Game do
     opponent = opponent(state, player)
 
     Rules.guess_coordinate(state.fsm, player)
-    |> guess_reply(opponent.board, coordinate)
+    |> guess_reply(opponent, coordinate)
     |> forest_check(opponent, coordinate)
     |> win_check(opponent, state)
+
+    # |> dbg()
   end
 
   def handle_call({:set_islands, player}, _from, state) do
@@ -134,8 +136,9 @@ defmodule IslandsEngine.Game do
     {:reply, reply, state}
   end
 
-  defp guess_reply(:ok, opponent_board, coordinate) do
-    Player.guess_coordinate(opponent_board, coordinate)
+  defp guess_reply(:ok, opponent, coordinate) do
+    Player.get_board(opponent)
+    |> Player.guess_coordinate(coordinate)
   end
 
   defp guess_reply({:error, :action_out_of_sequence}, _opponent_board, _coordinate) do
